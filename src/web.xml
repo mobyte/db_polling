@@ -1,0 +1,21 @@
+<web-app>
+  <!-- Servlet class taken from first :aot namespace -->
+  <servlet>
+     <servlet-name>aggregation_system</servlet-name>
+     <servlet-class>procs.operations</servlet-class>
+  </servlet>
+  <servlet>
+     <servlet-name>start_manager_servlet</servlet-name>
+     <servlet-class>procs.start_manager_servlet</servlet-class>
+     <init-param>
+       <!--param-name>container.script.static</param-name-->
+       <!--param-value>/WEB-INF/container.script</param-value-->
+     </init-param>     
+     <load-on-startup>1</load-on-startup>
+  </servlet>
+  <!-- Servlet is mapped to / by default  -->
+  <servlet-mapping>
+     <servlet-name>aggregation_system</servlet-name>
+     <url-pattern>/*</url-pattern>
+  </servlet-mapping>
+</web-app>
