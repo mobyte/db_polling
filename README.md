@@ -2,11 +2,16 @@ Warning! The library is not for common use. It was created just for a couple of 
 
 ## Features
 
-* Implemented as library.
-* Easy to use.
-* Represents most common db poll pattern.
-* Multi thread processing.
-* Error counting and locking table entries
+* Represents most common db poll pattern: 
+ 1. Manager reads and processes new records.
+ 3. Move processed records to archive.
+ 4. Errors increase error counters in certain tables (can be more than one).
+ 5. When errors counter reaches limit it blocks the record.
+ 6. Each error is handling by handler fn.
+* Implemented as library. So it's easy to use. Several poll managers can be used in one application with different configs.
+* Each manager starts as parallel thread without main thread blocking.
+* Buffered db reading.
+* Multi thread new records processing.
 
 ## Examples
 
@@ -73,6 +78,6 @@ Let's try it!
 user> (require '[libs.dbpoll.manager :as manager])
 user> (require '[libs.dbpoll.binds :as binds])
 user> (binding [binds/info info] (manager/start-manager)
-...  ...
+... Detached process output is here. REPL is available ...
 user> (binding [binds/info info] (manager/stop-manager)
 ```
