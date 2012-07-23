@@ -44,7 +44,8 @@
                  :select-add-filter nil
                  })
 
-(def info {:db db
+(def info {:manager-num 2
+           :db db
            :table-info table-info
            :lock-infos [lock-table]
            :processor-fn register

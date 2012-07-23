@@ -6,7 +6,7 @@
         [libs.dbpoll.glib]))
 
 
-(def ^:private tasks (ref {}))
+(def ^:dynamic ^:private tasks (ref {}))
 
 ;;;; (un)register process
 
@@ -111,45 +111,55 @@
 
 ;;;; item processor
 
-(def ^{:private true} sleep-time 2000)
-(def ^{:private true} thread-sleep-time 10)
-(def ^{:private true} thread-pool 200)
-(def ^{:private true} run? (ref false))
+(def ^:private sleep-time 2000)
+(def ^:private thread-sleep-time 10)
+(def ^:private thread-pool 200)
+(def ^:private running? (atom {}))
 
 (defn- set-running-state []
-  (ref-set run? true))
+  (ref-set (@running? (manager-num)) true))
 
 (defn- set-stopped-state []
-  (dosync (ref-set run? false)))
+  (dosync (ref-set (@running? (manager-num)) false)))
+
+(defn- run? [] (if-let [running? (@running? (manager-num))]
+                 (deref running?)
+                 false))
+
+(defn- manager-num-str [] (str "Manager #" (manager-num) ": "))
+
+(defn- printval [& text]
+  (let [text (apply str (manager-num-str) text)]
+   ((debug-logger) text)
+   text))
 
 (defn- manager []
   (try
     (if (< (count @tasks) thread-pool)
       (if-let [item (get-next-item)]
-        (do ((debug-logger) "peek item: " (get-field-from-row item (field-id)))
+        (do (printval "peek item: "
+             (get-field-from-row item (field-id)))
             (future (invoke-process item)))
-        (do ((debug-logger) "There is no process in queue. Sleeping "
+        (do (printval "There is no process in queue. Sleeping "
              sleep-time " msecs ...")
             (Thread/sleep sleep-time)))
-      (do ((debug-logger) "Thread pool is full. Sleeping "
+      (do (printval "Thread pool is full. Sleeping "
            thread-sleep-time " msecs ...")
           (Thread/sleep thread-sleep-time)))
     (catch Exception e
       ((error-logger) (stacktrace-to-string e))
       (throw e)))
-  (if @run?
+  (if (run?)
     (recur)))
 
-(defn- printval [text]
-  ((debug-logger) text)
-  text)
-
 (defn start-manager []
-  (dosync (if @run?
+  (dosync (if (run?)
             (printval "Manager already running")
-            (do (set-running-state)
-                (future (manager))
-                (printval "Manager started!")))))
+            (do (binding [tasks (ref {})]
+                  (swap! running? assoc (manager-num) (ref false))
+                  (set-running-state)
+                  (future (manager))
+                  (printval "Manager started!"))))))
 
 (defn- clear-tasks [] (dosync (ref-set tasks {})))
 
