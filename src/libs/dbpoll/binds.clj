@@ -31,7 +31,8 @@
                          :select-add-filter nil ;[:= 0 subscribers-locked]
                          })
 
-(def info-example {:db nil ;;conf/db
+(def info-example {:manager-num nil ;; 1
+                   :db nil ;;conf/db
                    :table-info nil ;table-info-queue
                    :lock-infos nil ;[lock-table-info-queue lock-table-info-subs]
                    :processor-fn nil ;;register/send-event-to-subscriber
@@ -42,6 +43,7 @@
 
 (def ^:dynamic info nil)
 
+(defn manager-num [] (:manager-num info))
 (defn db [] (:db info))
 (defn table-info [] (:table-info info))
 (defn lock-infos [] (:lock-infos info))

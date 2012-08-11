@@ -6,7 +6,9 @@
         [db.entities]))
 
 (defn- register [event]
-  (println "registering event: " event))
+  (println "registering event: " event)
+  (Thread/sleep 5000)
+  (println "done"))
 
 (defn- logger-error [& messages]
   (apply println "error: " messages))
@@ -44,7 +46,8 @@
                  :select-add-filter nil
                  })
 
-(def info {:db db
+(def info {:manager-num 2
+           :db db
            :table-info table-info
            :lock-infos [lock-table]
            :processor-fn register

@@ -6,7 +6,6 @@
         [db.entities-q]))
 
 (defn- register [event]
-  (/ 1 0)
   (println "registering event: " event))
 
 (defn- logger-error [& messages]
@@ -52,7 +51,8 @@
                  :select-add-filter [:= 0 subscribers-locked]
                  })
 
-(def info {:db db
+(def info {:manager-num 1
+           :db db
            :table-info table-info
            :lock-infos [lock-table-queue lock-table-subs]
            :processor-fn register
