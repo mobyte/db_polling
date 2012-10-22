@@ -40,8 +40,12 @@
   (fn [field] (get-field-from-row item field)))
 
 (defn- move-done-item-to-archive [item]
-  (let [getter (make-row-getter item)]
-    (with-db (db)
+  (with-db (db)
+    (let [actual-item (first (select (table)
+                                     :where [:= (field-id)
+                                             (get-field-from-row item
+                                                                 (field-id))]))
+          getter (make-row-getter actual-item)]
       (insert (arc-table)
               (fields)
               (map getter (fields)))
@@ -113,7 +117,6 @@
 
 (def ^:private sleep-time 2000)
 (def ^:private thread-sleep-time 10)
-(def ^:private thread-pool 200)
 (def ^:private running? (atom {}))
 
 (defn- set-running-state []
@@ -135,7 +138,7 @@
 
 (defn- manager []
   (try
-    (if (< (count @tasks) thread-pool)
+    (if (< (count @tasks) (thread-pool))
       (if-let [item (get-next-item)]
         (do (printval "peek item: "
              (get-field-from-row item (field-id)))
@@ -144,8 +147,8 @@
              sleep-time " msecs ...")
             (Thread/sleep sleep-time)))
       (do (printval "Thread pool is full. Sleeping "
-           thread-sleep-time " msecs ...")
-          (Thread/sleep thread-sleep-time)))
+           (thread-full-sleep-time) " msecs ...")
+          (Thread/sleep (thread-full-sleep-time))))
     (catch Exception e
       ((error-logger) (stacktrace-to-string e))
       (throw e)))

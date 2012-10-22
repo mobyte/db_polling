@@ -58,6 +58,9 @@
                            error-fn
                            processor-error-default))
 
+(defn thread-pool [] (or (:thread-pool info) 10))
+(defn thread-full-sleep-time [] (or (:thread-full-sleep-time info) 10))
+
 (defn processor-exception [] (fn [item e]
                                ((processor-error) item (stacktrace-to-string e))))
 

@@ -6,7 +6,9 @@
         [db.entities]))
 
 (defn- register [event]
-  (println "registering event: " event))
+  (println "registering event: " event)
+  (Thread/sleep 5000)
+  (println "done"))
 
 (defn- logger-error [& messages]
   (apply println "error: " messages))
