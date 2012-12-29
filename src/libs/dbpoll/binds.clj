@@ -3,18 +3,19 @@
 
 
 (def lock-table-info-example {:table nil ;table-subscribers
-                               :id-field nil ;subscribers-id
-                               :err-count-field nil ;subscribers-err_count
-                               :locked-field nil ;subscribers-locked
-                               :error-limit nil ;3
+                              :id-field nil ;subscribers-id
+                              :err-count-field nil ;subscribers-err_count
+                              :locked-field nil ;subscribers-locked
+                              :error-limit nil ;3
                               :calc-id-fn nil ;#(get-field-from-row % queue-subscriber)
+                              :lock-error-fn #(println "Damn! The item is locked!!! " %)
                               })
 
 (def lock-table-info-example2 {:table nil ;table-queue
-                                :id-field nil ;queue-id
-                                :err-count-field nil ;queue-err_count
-                                :locked-field nil ;queue-locked
-                                :error-limit nil ;2
+                               :id-field nil ;queue-id
+                               :err-count-field nil ;queue-err_count
+                               :locked-field nil ;queue-locked
+                               :error-limit nil ;2
                                :calc-id-fn nil ;#(get-field-from-row % queue-id)
                                })
 

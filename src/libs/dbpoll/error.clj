@@ -1,7 +1,8 @@
 (ns libs.dbpoll.error
   (:require [clojure.java.jdbc :as jdbc])
   (:use [libs.db.query]
-        [libs.dbpoll.binds]))
+        [libs.dbpoll.binds]
+        [libs.dbpoll.glib]))
 
 (def ^:private ^:dynamic lock-table-info nil)
 
@@ -11,6 +12,8 @@
 (defn- lock-field [] (:locked-field lock-table-info))
 (defn- lock-error-limit [] (:error-limit lock-table-info))
 (defn- lock-calc-id [event] ((:calc-id-fn lock-table-info) event))
+(defn- lock-error-fn [event] (when-let [error-fn (:lock-error-fn lock-table-info)]
+                               (error-fn event)))
 
 (defn- get-error-count-db [id]
   (first (with-db (db) (select (lock-table)
@@ -40,11 +43,17 @@
                         {(lock-field) 1}
                         [:= id (lock-id-field)])))
 
+(defn- lock-error [event]
+  (try (lock-error-fn event)
+       (catch Exception e ((error-logger) (str "lock error fn: "
+                                               (stacktrace-to-string e))))))
+
 (defn- process-error [event]
   (let [id (lock-calc-id event)]
     (inc-error-count id)
-    (if (limit-exceed? (get-error-count id))
-      (lock id))))
+    (when (limit-exceed? (get-error-count id))
+      (lock id)
+      (lock-error event))))
 
 ;;;; register error
 

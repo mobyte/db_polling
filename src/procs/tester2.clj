@@ -7,6 +7,7 @@
 
 (defn- register [event]
   (println "registering event: " event)
+  (throw (Exception. "test error"))
   (Thread/sleep 5000)
   (println "done"))
 
@@ -30,6 +31,7 @@
                  :locked-field events-locked
                  :error-limit 2
                  :calc-id-fn #(get-field-from-row % events-id)
+                 :lock-error-fn #(println "Damn! The item is locked!!! " %)
                  })
 
 (def table-info {:table table-events
