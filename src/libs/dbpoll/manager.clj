@@ -40,16 +40,18 @@
   (fn [field] (get-field-from-row item field)))
 
 (defn- move-done-item-to-archive [item]
-  (with-db (db)
-    (let [actual-item (first (select (table)
-                                     :where [:= (field-id)
-                                             (get-field-from-row item
-                                                                 (field-id))]))
-          getter (make-row-getter actual-item)]
-      (insert (arc-table)
-              (fields)
-              (map getter (fields)))
-      (jdbc/delete-rows (table) ["id=?" (getter (field-id))]))))
+  (try
+    (with-db (db)
+      (let [actual-item (first (select (table)
+                                       :where [:= (field-id)
+                                               (get-field-from-row item
+                                                                   (field-id))]))
+            getter (make-row-getter actual-item)]
+        (insert (arc-table)
+                (fields)
+                (map getter (fields)))
+        (jdbc/delete-rows (table) ["id=?" (getter (field-id))])))
+    (catch Exception e ((error-logger) (stacktrace-to-string e)))))
 
 ;;;; async process
 
