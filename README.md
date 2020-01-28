@@ -1,4 +1,4 @@
-Warning! The library is not for common use. It was created just for a couple of my current projects.
+Warning! The project is just for fun and not meant to be used anywhere.
 
 ## Features
 
